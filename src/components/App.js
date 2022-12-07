@@ -11,6 +11,7 @@ import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 
 import EditProfilePopup from './EditProfilePopup';
+import EditAvatarPopup from './EditAvatarPopup';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
@@ -65,6 +66,16 @@ function App() {
       .catch((err) => console.log(err));
   }
 
+  function handleUpdateAvatar(newAvatarLink) {
+    api
+      .updateUserAvatar(newAvatarLink)
+      .then((data) => {
+        setCurrentUser(data);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(err));
+  }
+
   return (
     <>
       <CurrentUserContext.Provider value={currentUser}>
@@ -87,6 +98,15 @@ function App() {
             onClose={closeAllPopups}
             onUpdateUser={handleUpdateUser}
           ></EditProfilePopup>
+        )}
+
+        {/* попап обновления аватара */}
+        {isEditAvatarPopupOpen && (
+          <EditAvatarPopup
+            isOpen={isEditAvatarPopupOpen}
+            onClose={closeAllPopups}
+            onUpdateAvatar={handleUpdateAvatar}
+          ></EditAvatarPopup>
         )}
 
         {/* попап добавления карточки */}
@@ -116,26 +136,6 @@ function App() {
               required
             />
             <span className="popup__error popup-new-card-link-error"></span>
-          </PopupWithForm>
-        )}
-
-        {/* попап обновления аватара */}
-        {isEditAvatarPopupOpen && (
-          <PopupWithForm
-            title="Обновить аватар"
-            name="edit-avatar"
-            isOpen={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            submitButtonName="Сохранить"
-          >
-            <input
-              className="popup__input"
-              type="url"
-              name="popup-new-avatar-link"
-              placeholder="Ссылка на картинку"
-              required
-            />
-            <span className="popup__error popup-new-avatar-link-error"></span>
           </PopupWithForm>
         )}
 

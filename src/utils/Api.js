@@ -78,7 +78,7 @@ class Api {
   }
 
   // сменить аватар у пользователя в профиле
-  updateUserAvatar(newAvatarLink) {
+  updateUserAvatar({ newAvatarLink }) {
     return fetch(`${this._baseUrl}/users/me/avatar`, {
       method: 'PATCH',
       headers: this._headers,
