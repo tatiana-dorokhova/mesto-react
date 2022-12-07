@@ -67,19 +67,12 @@ class Api {
     }).then((res) => this._handlePromise(res));
   }
 
-  // поставить лайк карточке по ее id
+  // изменить статус лайка у карточки
   // в ответе обновлённый JSON с карточкой с измененным количеством в likes
-  likeCard(cardId) {
+  changeLikeCardStatus(cardId, isLiked) {
+    const method = isLiked ? 'PUT' : 'DELETE';
     return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
-      method: 'PUT',
-      headers: this._headers,
-    }).then((res) => this._handlePromise(res));
-  }
-
-  // снять лайк с карточки по ее id
-  unlikeCard(cardId) {
-    return fetch(`${this._baseUrl}/cards/${cardId}/likes`, {
-      method: 'DELETE',
+      method: method,
       headers: this._headers,
     }).then((res) => this._handlePromise(res));
   }
