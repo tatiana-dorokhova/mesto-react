@@ -10,6 +10,8 @@ import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
 import ImagePopup from './ImagePopup';
 
+import EditProfilePopup from './EditProfilePopup';
+
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
@@ -53,6 +55,16 @@ function App() {
     setSelectedCard(null);
   }
 
+  function handleUpdateUser({ newUserName, newUserAbout }) {
+    api
+      .editUserProfile({ newUserName, newUserAbout })
+      .then((data) => {
+        setCurrentUser(data);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(err));
+  }
+
   return (
     <>
       <CurrentUserContext.Provider value={currentUser}>
@@ -70,34 +82,11 @@ function App() {
 
         {/* попап редактирования профиля (отрисовываем только тогда, когда isEditProfilePopupOpen=true)*/}
         {isEditProfilePopupOpen && (
-          <PopupWithForm
-            title="Редактировать профиль"
-            name="edit-profile"
+          <EditProfilePopup
             isOpen={isEditProfilePopupOpen}
             onClose={closeAllPopups}
-            submitButtonName="Сохранить"
-          >
-            <input
-              className="popup__input"
-              type="text"
-              name="popup-profile-name"
-              placeholder="Имя"
-              minLength="2"
-              maxLength="40"
-              required
-            />
-            <span className="popup__error popup-profile-name-error"></span>
-            <input
-              className="popup__input"
-              type="text"
-              name="popup-profile-job"
-              placeholder="Род занятий"
-              minLength="2"
-              maxLength="200"
-              required
-            />
-            <span className="popup__error popup-profile-job-error"></span>
-          </PopupWithForm>
+            onUpdateUser={handleUpdateUser}
+          ></EditProfilePopup>
         )}
 
         {/* попап добавления карточки */}
