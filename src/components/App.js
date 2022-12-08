@@ -12,6 +12,7 @@ import ImagePopup from './ImagePopup';
 
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
+import AddPlacePopup from './AddPlacePopup';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
@@ -22,11 +23,46 @@ function App() {
 
   const [currentUser, setCurrentUser] = React.useState({});
 
+  const [cards, setCards] = React.useState([]);
+
+  React.useEffect(() => {
+    api
+      .getInitialCards()
+      .then((initialCards) => {
+        setCards(initialCards);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   React.useEffect(() => {
     api.getUserProfile().then((userProfile) => {
       setCurrentUser(userProfile);
     });
   }, []);
+
+  function handleCardLike(card) {
+    const isLiked = card.likes.some((i) => i._id === currentUser._id);
+    console.log('isLiked = ', isLiked);
+
+    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
+      setCards((prevState) =>
+        prevState.map((c) => (c._id === card._id ? newCard : c))
+      ).catch((err) => console.log(err));
+    });
+  }
+
+  function handleCardDelete(card) {
+    api
+      .deleteCard(card._id)
+      .then(
+        setCards(
+          cards.filter((item) => {
+            return item._id === card._id ? null : item;
+          })
+        )
+      )
+      .catch((err) => console.log(err));
+  }
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -76,6 +112,16 @@ function App() {
       .catch((err) => console.log(err));
   }
 
+  function handleAddPlaceSubmit({ newCardName, newCardLink }) {
+    api
+      .addNewCard({ newCardName, newCardLink })
+      .then((newCard) => {
+        setCards([newCard, ...cards]);
+        closeAllPopups();
+      })
+      .catch((err) => console.log(err));
+  }
+
   return (
     <>
       <CurrentUserContext.Provider value={currentUser}>
@@ -87,6 +133,9 @@ function App() {
             onAddPlace={handleAddPlaceClick}
             onCardClick={handleCardClick}
             onDeleteCardButtonClick={handleDeleteCardClick}
+            cards={cards}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
           />
           <Footer />
         </div>
@@ -111,32 +160,11 @@ function App() {
 
         {/* попап добавления карточки */}
         {isAddPlacePopupOpen && (
-          <PopupWithForm
-            title="Новое место"
-            name="add-place"
+          <AddPlacePopup
             isOpen={isAddPlacePopupOpen}
             onClose={closeAllPopups}
-            submitButtonName="Создать"
-          >
-            <input
-              className="popup__input"
-              type="text"
-              name="popup-new-card-name"
-              placeholder="Название"
-              minLength="2"
-              maxLength="30"
-              required
-            />
-            <span className="popup__error popup-new-card-name-error"></span>
-            <input
-              className="popup__input"
-              type="url"
-              name="popup-new-card-link"
-              placeholder="Ссылка на картинку"
-              required
-            />
-            <span className="popup__error popup-new-card-link-error"></span>
-          </PopupWithForm>
+            onAddPlace={handleAddPlaceSubmit}
+          ></AddPlacePopup>
         )}
 
         {/* попап раскрытия картинки */}
