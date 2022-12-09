@@ -3,7 +3,6 @@ import React from 'react';
 import { api } from '../utils/Api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
-import '../index.css';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -35,32 +34,29 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    api.getUserProfile().then((userProfile) => {
-      setCurrentUser(userProfile);
-    });
+    api
+      .getUserProfile()
+      .then((userProfile) => {
+        setCurrentUser(userProfile);
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
-    console.log('isLiked = ', isLiked);
 
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
-      setCards((prevState) =>
-        prevState.map((c) => (c._id === card._id ? newCard : c))
-      ).catch((err) => console.log(err));
-    });
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
+      .then((newCard) => {
+        setCards((prevState) => prevState.map((c) => (c._id === card._id ? newCard : c)));
+      })
+      .catch((err) => console.log(err));
   }
 
   function handleCardDelete(card) {
     api
       .deleteCard(card._id)
-      .then(
-        setCards(
-          cards.filter((item) => {
-            return item._id === card._id ? null : item;
-          })
-        )
-      )
+      .then(setCards((prevState) => prevState.filter((c) => c._id !== card._id)))
       .catch((err) => console.log(err));
   }
 
