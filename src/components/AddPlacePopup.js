@@ -2,25 +2,28 @@ import React from 'react';
 import PopupWithForm from './PopupWithForm';
 
 function AddPlacePopup(props) {
-  const [name, setName] = React.useState('');
-  const [link, setLink] = React.useState('');
+  const [values, setValues] = React.useState({});
 
-  function handleNameChange(e) {
-    setName(e.target.value);
-  }
-
-  function handleLinkChange(e) {
-    setLink(e.target.value);
-  }
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   function handleSubmit(e) {
     e.preventDefault();
     // Передаём значения управляемых компонентов во внешний обработчик
     props.onAddPlace({
-      newCardName: name,
-      newCardLink: link,
+      newCardName: values['popup-new-card-name'],
+      newCardLink: values['popup-new-card-link'],
     });
   }
+
+  React.useEffect(() => {
+    setValues({});
+  }, [props.isOpen]);
 
   return (
     <PopupWithForm
@@ -35,7 +38,7 @@ function AddPlacePopup(props) {
         className="popup__input"
         type="text"
         name="popup-new-card-name"
-        onChange={handleNameChange}
+        onChange={handleChange} //{handleNameChange}
         placeholder="Название"
         minLength="2"
         maxLength="30"
@@ -46,7 +49,7 @@ function AddPlacePopup(props) {
         className="popup__input"
         type="url"
         name="popup-new-card-link"
-        onChange={handleLinkChange}
+        onChange={handleChange} //{handleLinkChange}
         placeholder="Ссылка на картинку"
         required
       />
